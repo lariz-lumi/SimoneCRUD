@@ -24,7 +24,6 @@ class ClienteViewModel: ViewModel() {
     val isLoading: StateFlow<Boolean> = _isLoading
 
     private val _clienteSelecionado = MutableStateFlow<Cliente?>(null) //guarda o cliente escolhido
-    val clienteSelecionado: StateFlow<Cliente?> = _clienteSelecionado
 
     private val _clienteBuscado = MutableStateFlow<Cliente?>(null) //guarda o resultado da busca por ID
     val clienteBuscado: StateFlow<Cliente?> = _clienteBuscado
@@ -80,7 +79,7 @@ class ClienteViewModel: ViewModel() {
     fun adicionarCliente(idCliente: String, nome: String, telefone: String) {
         viewModelScope.launch {
             try {
-                val novoId = (_clientes.value.size + 1).toString() //gera o novo id com base na qtd
+                val novoId = (_clientes.value.size + 1).toString() // novo id com base na qtd
 
                 val novoCliente = Cliente(
                     idCliente = novoId,
