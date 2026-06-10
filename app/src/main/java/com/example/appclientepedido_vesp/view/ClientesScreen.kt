@@ -1,6 +1,7 @@
 package com.example.appclientepedido_vesp.view
 
-
+import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -37,6 +39,9 @@ fun ClientesScreen(viewModel: ClienteViewModel = viewModel()) {
     var nomeInput by remember { mutableStateOf("") }
 
     var telefoneInput by remember { mutableStateOf("") }
+
+    var idClienteSendoEditado by remember {mutableStateOf<String?>(null)}
+    val context = LocalContext.current
 
     val isLoading by viewModel.isLoading.collectAsState()
 
@@ -74,12 +79,21 @@ fun ClientesScreen(viewModel: ClienteViewModel = viewModel()) {
         Button(
             onClick = {
                 if(nomeInput.isNotBlank() && telefoneInput.isNotBlank()) {
-
+                    if(idClienteSendoEditado == null){
+                        viewModel.adicionarCliente("", nomeInput, telefoneInput)
+                        Toast.makeText(context, "Cliente adicionado!", Toast.LENGTH_LONG).show()
+                    }else{
+                        viewModel.atualizarCliente(idClienteSendoEditado!!.toInt(), nomeInput, telefoneInput)
+                        Toast.makeText(context, "Cliente atualizado!", Toast.LENGTH_LONG).show()
+                        idClienteSendoEditado = null
+                    }
+                    nomeInput = ""
+                    telefoneInput = ""
                 }
             }
         ) {
 
-            Text("Adicionar Cliente")
+            Text(if (idClienteSendoEditado == null) "Adicionar Cliente" else "Salvar Alterações")
         }
 
         Spacer(modifier = Modifier.height(15.dp))
@@ -95,7 +109,11 @@ fun ClientesScreen(viewModel: ClienteViewModel = viewModel()) {
                 items(clientes){
                     cliente ->
                     Card(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).clickable{
+                            idClienteSendoEditado = cliente.idCliente
+                            nomeInput = cliente.nome
+                            telefoneInput = cliente.telefone
+                        },
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
                         Row(
@@ -109,7 +127,11 @@ fun ClientesScreen(viewModel: ClienteViewModel = viewModel()) {
                                 Text(cliente.telefone, fontSize = 15.sp)
                             }
                             IconButton(
-                                onClick = {}
+                                onClick = {
+                                    val idInt = cliente.idCliente.toIntOrNull() ?: 0
+                                    viewModel.excluirCliente(idInt)
+                                    Toast.makeText(context, "Cliente removido com sucesso!", Toast.LENGTH_LONG).show()
+                                }
                             ) {
                                 Icon(
                                     Icons.Default.Delete,

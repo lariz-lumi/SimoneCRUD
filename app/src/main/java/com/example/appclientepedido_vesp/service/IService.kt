@@ -11,7 +11,7 @@ interface IService {
     suspend fun getClientes(): List<Cliente>
 
     @GET("clientes/{id}")
-    suspend fun getClientePorId(): Cliente
+    suspend fun getClientePorId(@Path("id") id: Int): Cliente
 
     @POST("clientes")
     suspend fun criarCliente(@Body cliente: Cliente): Cliente

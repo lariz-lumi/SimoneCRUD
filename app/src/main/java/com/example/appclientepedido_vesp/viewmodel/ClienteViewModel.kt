@@ -23,11 +23,15 @@ class ClienteViewModel: ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    private val _clienteSelecionado = MutableStateFlow<Cliente?>(null)
+    val clienteSelecionado: StateFlow<Cliente?> = _clienteSelecionado
+
     init{
         carregarCliente()
     }
 
     fun carregarCliente() {
+        _isLoading.value = true
 
         viewModelScope.launch {
             try {
@@ -42,13 +46,32 @@ class ClienteViewModel: ViewModel() {
 
     }
 
-    fun adicionarCliente(idCliente: String, nome:String, telefone:String){
+    /*fun adicionarCliente(idCliente: String, nome:String, telefone:String){
 
         viewModelScope.launch {
             try {
                 val novoCliente = Cliente(idCliente = idCliente ,nome=nome, telefone=telefone)
+                val clienteSalvo = api.criarCliente(novoCliente)
+
+                _clientes.value = _clientes.value + clienteSalvo
             } catch (e: Exception) {
                 e.printStackTrace()
+            }
+        }
+    }*/
+    fun adicionarCliente(idCliente: String, nome: String, telefone: String) {
+        viewModelScope.launch {
+            try {
+                val novoId = (_clientes.value.size + 1).toString()
+                val novoCliente = Cliente(idCliente = novoId, nome = nome, telefone = telefone)
+                api.criarCliente(novoCliente)
+                _clientes.value = _clientes.value + novoCliente
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                val novoId = (_clientes.value.size + 1).toString()
+                val novoCliente = Cliente(idCliente = novoId, nome = nome, telefone = telefone)
+                _clientes.value = _clientes.value + novoCliente
             }
         }
     }
@@ -61,8 +84,40 @@ class ClienteViewModel: ViewModel() {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+            _clientes.value = _clientes.value.filter { it.idCliente != id.toString()}
         }
     }
+
+   /* fun atualizarCliente(id: Int, nome: String, telefone: String){
+        viewModelScope.launch {
+            try {
+                val clienteEditado = Cliente(idCliente = id.toString(), nome = nome, telefone = telefone)
+                api.atualizarCliente(id, clienteEditado)
+                _clientes.value = _clientes.value.map{
+                    if(it.idCliente == id.toString()) clienteEditado else it
+                }
+            }catch (e: Exception){
+                e.printStackTrace()
+            }
+        }
+    }*/
+   fun atualizarCliente(id: Int, nome: String, telefone: String) {
+       viewModelScope.launch {
+
+           val clienteEditado = Cliente(idCliente = id.toString(), nome = nome, telefone = telefone)
+           try {
+               api.atualizarCliente(id, clienteEditado)
+               _clientes.value = _clientes.value.map {
+                   if (it.idCliente == id.toString()) clienteEditado else it
+               }
+           } catch (e: Exception) {
+               e.printStackTrace()
+               _clientes.value = _clientes.value.map {
+                   if (it.idCliente == id.toString()) clienteEditado else it
+               }
+           }
+       }
+   }
 
 
 
