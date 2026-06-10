@@ -241,7 +241,7 @@ fun ClientesScreen(viewModel: ClienteViewModel = viewModel()) {
                             telefoneInput = ""
                         }
                     },
-                    shape = RoundedCornerShape(4.dp),
+                    shape = RoundedCornerShape(4.dp), //arredonda o canto
                     colors = ButtonDefaults.buttonColors(containerColor = corAmareloClaro, contentColor = Color.Black),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -286,7 +286,7 @@ fun ClientesScreen(viewModel: ClienteViewModel = viewModel()) {
                                     }
                                     IconButton(
                                         onClick = {
-                                            val idInt = cliente.idCliente.toIntOrNull() ?: 0
+                                            val idInt = cliente.idCliente.toIntOrNull() ?: 0 //converte de string pra int
                                             viewModel.excluirCliente(idInt)
                                             Toast.makeText(context, "Cliente removido com sucesso!", Toast.LENGTH_LONG).show()
                                         }
@@ -373,7 +373,7 @@ fun ClientesScreen(viewModel: ClienteViewModel = viewModel()) {
                         color = corAmareloClaro
                     )
                 } else {
-                    clienteBuscado?.let { cliente ->
+                    clienteBuscado?.let { cliente -> //se o cliente nao for nulo vai executar
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(6.dp),
@@ -381,16 +381,16 @@ fun ClientesScreen(viewModel: ClienteViewModel = viewModel()) {
                             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                         ) {
                             Column(modifier = Modifier.padding(18.dp)) {
-                                Text("RESULTADO ENCONTRADO", fontSize = 12.sp, color = corAmareloClaro, fontWeight = FontWeight.Bold)
+                                Text("CLIENTE ENCONTRADO", fontSize = 12.sp, color = corAmareloClaro, fontWeight = FontWeight.Bold)
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text("ID: ${cliente.idCliente}", fontSize = 13.sp, color = corTextoClaro)
                                 Text("Nome: ${cliente.nome}", fontSize = 17.sp, color = corTextoClaro, fontWeight = FontWeight.Bold)
                                 Text("Telefone: ${cliente.telefone}", fontSize = 14.sp, color = Color.LightGray)
                             }
                         }
-                    } ?: run {
+                    } ?: run { //se digita um id que nao tem aparece que nao foi localizado
                         if (idBuscaInput.isNotBlank()) {
-                            Text("Nenhum registro correspondente localizado.", color = Color.Gray, fontSize = 14.sp)
+                            Text("Nenhum registro localizado.", color = Color.Gray, fontSize = 20.sp)
                         }
                     }
                 }

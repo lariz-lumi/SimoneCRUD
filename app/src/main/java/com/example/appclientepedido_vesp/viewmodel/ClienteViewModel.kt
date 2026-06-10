@@ -9,6 +9,7 @@ import com.example.appclientepedido_vesp.service.RetrofitAppApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.newFixedThreadPoolContext
 
 class ClienteViewModel: ViewModel() {
 
@@ -18,14 +19,14 @@ class ClienteViewModel: ViewModel() {
     //MutableStateFlow = leitura e escrita
     private val _clientes = MutableStateFlow<List<Cliente>>(emptyList())
     //StateFlow = só leitura
-    val clientes : StateFlow<List<Cliente>> = _clientes
+    val clientes : StateFlow<List<Cliente>> = _clientes //lista com todos os clientes
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    private val _clienteSelecionado = MutableStateFlow<Cliente?>(null)
+    private val _clienteSelecionado = MutableStateFlow<Cliente?>(null) //guarda o cliente escolhido
     val clienteSelecionado: StateFlow<Cliente?> = _clienteSelecionado
 
-    private val _clienteBuscado = MutableStateFlow<Cliente?>(null)
+    private val _clienteBuscado = MutableStateFlow<Cliente?>(null) //guarda o resultado da busca por ID
     val clienteBuscado: StateFlow<Cliente?> = _clienteBuscado
 
     init{
@@ -67,10 +68,10 @@ class ClienteViewModel: ViewModel() {
         viewModelScope.launch {
             try {
                 val cliente = api.getClientePorId(id)
-                _clienteBuscado.value = cliente
+                _clienteBuscado.value = cliente //se é encontrado ta armazenado no stateflow
             }catch (e: Exception){
                 e.printStackTrace()
-                _clienteBuscado.value = _clientes.value.find { it.idCliente == id.toString()}
+                _clienteBuscado.value = _clientes.value.find { it.idCliente == id.toString()} //nao olha mais pra api
             }finally {
                 _isLoading.value = false
             }
@@ -80,59 +81,54 @@ class ClienteViewModel: ViewModel() {
         viewModelScope.launch {
             try {
                 val novoId = (_clientes.value.size + 1).toString()
-                val novoCliente = Cliente(idCliente = novoId, nome = nome, telefone = telefone)
-                api.criarCliente(novoCliente)
+
+                val novoCliente = Cliente(
+                    idCliente = novoId,
+                    nome = nome,
+                    telefone = telefone
+                )
+                val resposta = api.criarCliente(novoCliente)
+                println("POST: $resposta")
                 _clientes.value = _clientes.value + novoCliente
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                val novoId = (_clientes.value.size + 1).toString()
-                val novoCliente = Cliente(idCliente = novoId, nome = nome, telefone = telefone)
-                _clientes.value = _clientes.value + novoCliente
             }
         }
     }
 
     fun excluirCliente(id:Int){
-
         viewModelScope.launch {
             try {
                 api.deletarCliente(id)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            _clientes.value = _clientes.value.filter { it.idCliente != id.toString()}
+            _clientes.value = _clientes.value.filter { it.idCliente != id.toString()} //atualiza na lista
         }
     }
-
-   /* fun atualizarCliente(id: Int, nome: String, telefone: String){
+    fun atualizarCliente(id: Int, nome: String, telefone: String) {
         viewModelScope.launch {
+            val clienteEditado = Cliente(
+                idCliente = id.toString(),
+                nome = nome,
+                telefone = telefone
+            )
             try {
-                val clienteEditado = Cliente(idCliente = id.toString(), nome = nome, telefone = telefone)
-                api.atualizarCliente(id, clienteEditado)
-                _clientes.value = _clientes.value.map{
-                    if(it.idCliente == id.toString()) clienteEditado else it
+                val resposta = api.atualizarCliente(
+                    id = id,
+                    cliente = clienteEditado
+                )
+                println("PUT: $resposta")
+                _clientes.value = _clientes.value.map {
+                    if (it.idCliente == id.toString())
+                        clienteEditado
+                    else it
                 }
-            }catch (e: Exception){
+
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-    }*/
-   fun atualizarCliente(id: Int, nome: String, telefone: String) {
-       viewModelScope.launch {
-
-           val clienteEditado = Cliente(idCliente = id.toString(), nome = nome, telefone = telefone)
-           try {
-               api.atualizarCliente(id, clienteEditado)
-               _clientes.value = _clientes.value.map {
-                   if (it.idCliente == id.toString()) clienteEditado else it
-               }
-           } catch (e: Exception) {
-               e.printStackTrace()
-               _clientes.value = _clientes.value.map {
-                   if (it.idCliente == id.toString()) clienteEditado else it
-               }
-           }
-       }
-   }
+    }
 }
