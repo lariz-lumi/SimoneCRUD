@@ -80,7 +80,7 @@ class ClienteViewModel: ViewModel() {
     fun adicionarCliente(idCliente: String, nome: String, telefone: String) {
         viewModelScope.launch {
             try {
-                val novoId = (_clientes.value.size + 1).toString()
+                val novoId = (_clientes.value.size + 1).toString() //gera o novo id com base na qtd
 
                 val novoCliente = Cliente(
                     idCliente = novoId,
@@ -89,7 +89,7 @@ class ClienteViewModel: ViewModel() {
                 )
                 val resposta = api.criarCliente(novoCliente)
                 println("POST: $resposta")
-                _clientes.value = _clientes.value + novoCliente
+                _clientes.value = _clientes.value + novoCliente //add o cliente na lista
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -104,7 +104,7 @@ class ClienteViewModel: ViewModel() {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            _clientes.value = _clientes.value.filter { it.idCliente != id.toString()} //atualiza na lista
+            _clientes.value = _clientes.value.filter { it.idCliente != id.toString()} //se o 2 foi excluido o 3 mantem
         }
     }
     fun atualizarCliente(id: Int, nome: String, telefone: String) {
@@ -124,7 +124,7 @@ class ClienteViewModel: ViewModel() {
                     if (it.idCliente == id.toString())
                         clienteEditado
                     else it
-                }
+                } // percorre a lista e substitui o cliente editado pelo novo objeto
 
             } catch (e: Exception) {
                 e.printStackTrace()

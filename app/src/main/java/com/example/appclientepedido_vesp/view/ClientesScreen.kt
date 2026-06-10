@@ -46,7 +46,7 @@ fun ClientesScreen(viewModel: ClienteViewModel = viewModel()) {
     var idBuscaInput by remember { mutableStateOf("") }
     var abaAtiva by remember { mutableStateOf("gerenciar") }
 
-    val isLoading by viewModel.isLoading.collectAsState()
+
     val clientes by viewModel.clientes.collectAsState()
     val clienteBuscado by viewModel.clienteBuscado.collectAsState()
 
@@ -54,7 +54,6 @@ fun ClientesScreen(viewModel: ClienteViewModel = viewModel()) {
     val corAmareloClaro = Color(0xFFC69214)
     val corAmareloEscuro = Color(0xFF4A3B1C)
     val corTextoClaro = Color(0xFFF5F5F5)
-    val corVermelho = Color(0xFF8B0000)
     val corCardFundo = Color(0xFF2A2A32)
 
     /*Column(
@@ -253,12 +252,7 @@ fun ClientesScreen(viewModel: ClienteViewModel = viewModel()) {
 
                 Spacer(modifier = Modifier.height(15.dp))
 
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                        color = corAmareloClaro
-                    )
-                } else {
+
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(clientes) { cliente ->
                             Card(
@@ -294,25 +288,17 @@ fun ClientesScreen(viewModel: ClienteViewModel = viewModel()) {
                                         Icon(
                                             Icons.Default.Delete,
                                             contentDescription = "Excluir Cliente",
-                                            tint = corVermelho
-                                        )
+                                            tint = Color.Red                                        )
                                     }
                                 }
                             }
                         }
                     }
-                }
             }
 
             "listar" -> {
 
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                        color = corAmareloClaro
-                    )
-                } else {
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(clientes) { cliente ->
                             Card(
                                 modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
@@ -329,7 +315,6 @@ fun ClientesScreen(viewModel: ClienteViewModel = viewModel()) {
                             }
                         }
                     }
-                }
             }
 
             "buscar" -> {
@@ -367,12 +352,7 @@ fun ClientesScreen(viewModel: ClienteViewModel = viewModel()) {
 
                 Spacer(modifier = Modifier.height(25.dp))
 
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                        color = corAmareloClaro
-                    )
-                } else {
+
                     clienteBuscado?.let { cliente -> //se o cliente nao for nulo vai executar
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -388,12 +368,11 @@ fun ClientesScreen(viewModel: ClienteViewModel = viewModel()) {
                                 Text("Telefone: ${cliente.telefone}", fontSize = 14.sp, color = Color.LightGray)
                             }
                         }
-                    } ?: run { //se digita um id que nao tem aparece que nao foi localizado
+                    } ?: run { //se digita um id que nao tem, aparece que nao foi localizado
                         if (idBuscaInput.isNotBlank()) {
                             Text("Nenhum registro localizado.", color = Color.Gray, fontSize = 20.sp)
                         }
                     }
-                }
             }
         }
     }
