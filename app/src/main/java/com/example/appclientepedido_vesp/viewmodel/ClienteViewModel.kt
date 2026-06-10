@@ -19,12 +19,14 @@ class ClienteViewModel: ViewModel() {
     private val _clientes = MutableStateFlow<List<Cliente>>(emptyList())
     //StateFlow = só leitura
     val clientes : StateFlow<List<Cliente>> = _clientes
-
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
     private val _clienteSelecionado = MutableStateFlow<Cliente?>(null)
     val clienteSelecionado: StateFlow<Cliente?> = _clienteSelecionado
+
+    private val _clienteBuscado = MutableStateFlow<Cliente?>(null)
+    val clienteBuscado: StateFlow<Cliente?> = _clienteBuscado
 
     init{
         carregarCliente()
@@ -59,6 +61,21 @@ class ClienteViewModel: ViewModel() {
             }
         }
     }*/
+
+    fun buscarPorId(id: Int){
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val cliente = api.getClientePorId(id)
+                _clienteBuscado.value = cliente
+            }catch (e: Exception){
+                e.printStackTrace()
+                _clienteBuscado.value = _clientes.value.find { it.idCliente == id.toString()}
+            }finally {
+                _isLoading.value = false
+            }
+        }
+    }
     fun adicionarCliente(idCliente: String, nome: String, telefone: String) {
         viewModelScope.launch {
             try {
@@ -118,10 +135,4 @@ class ClienteViewModel: ViewModel() {
            }
        }
    }
-
-
-
-
-
-
 }
